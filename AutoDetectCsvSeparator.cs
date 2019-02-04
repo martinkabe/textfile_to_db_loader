@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 class AutoDetectCsvSeparator
 {
-    public static char Detect(TextReader reader, int rowCount, IList<char> separators)
+    public static char DetectSeparator(StreamReader reader, int rowCount, IList<char> separators)
     {
         IList<int> separatorsCount = new int[separators.Count];
 

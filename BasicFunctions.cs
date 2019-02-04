@@ -16,19 +16,44 @@ namespace PullPushDB
 {
     namespace BasicOperations
     {
+        public enum SepType
+        {
+            auto,
+            comma,
+            tilda,
+            tab,
+            space,
+            dot
+        }
+
         public class BasicFunctions
         {
             private readonly IPrintMethod _iprintmethod;
             private string _connectionString;
+            /// <summary>
+            /// Constructor for BasicOperations.BasicFunctions class
+            /// </summary>
+            /// <param name="conString">Connection string, e.g. LAPTOP-USERNAME\\SQLEXPRESS;Initial Catalog=DBName;Integrated Security=True;</param>
+            /// <param name="iprintmethod">Instance of class, e.g.: new ConsoleWritelinePrintMethod() uses Console.Writeline() method</param>
             public BasicFunctions(string conString, IPrintMethod iprintmethod)
             {
                 _connectionString = conString;
                 _iprintmethod = iprintmethod;
             }
 
+            /// <summary>
+            /// Wrapper for IPrintMethod interface, e.g.: new ConsoleWritelinePrintMethod() in ctor represents Console.Writeline() method
+            /// </summary>
+            /// <param name="message"></param>
             public void ShowPrintMethod(string message) => _iprintmethod.PrintMethod(message);
-
-            public void InsertDataIntoSQLServerUsingSQLBulkCopy_2(DataTable dtable, string sqlTableName, Int32 batch_size)
+            /// <summary>
+            /// Pushes the data into SQL Server DB using SqlBulkCopy class
+            /// </summary>
+            /// <param name="dtable">DataTable as input parameter</param>
+            /// <param name="sqlTableName">Name of table on SQL Server database</param>
+            /// <param name="batch_size">The size of batch in BulkCopy</param>
+            /// <param name="timeout">BulkCopy timeout</param>
+            public void InsertDataIntoSQLServerUsingSQLBulkCopy_2(DataTable dtable, string sqlTableName, Int32 batch_size, int timeout = 0)
             {
                 try
                 {
@@ -39,7 +64,7 @@ namespace PullPushDB
                         try
                         {
                             // Write from the source to the destination.
-                            bulkCopy.BulkCopyTimeout = 0;
+                            bulkCopy.BulkCopyTimeout = timeout;
                             bulkCopy.BatchSize = batch_size;
                             // Set up the event handler to notify after 50 rows.
                             // bulkCopy.SqlRowsCopied += new SqlRowsCopiedEventHandler(OnSqlRowsCopied);
@@ -92,7 +117,10 @@ namespace PullPushDB
                     Environment.Exit(1);
                 }
             }
-
+            /// <summary>
+            /// TRUNCATE table on SQL Server. If TRUNCATE is not allowed, catch exception uses DROP.
+            /// </summary>
+            /// <param name="sqlTableName">Name of table on SQL Server database</param>
             public void CleanUpTable(string sqlTableName)
             {
                 try
@@ -133,7 +161,10 @@ namespace PullPushDB
                     Environment.Exit(1);
                 }
             }
-
+            /// <summary>
+            /// DROP table uses SQL command DROP table
+            /// </summary>
+            /// <param name="sqlTableName">Name of table on SQL Server database</param>
             public void DropTable(string sqlTableName)
             {
                 try
@@ -157,7 +188,10 @@ namespace PullPushDB
                     Environment.Exit(1);
                 }
             }
-
+            /// <summary>
+            /// POST SQL QUERY into DB
+            /// </summary>
+            /// <param name="sqltask">SQL Query, e.g. UPDATE table...</param>
             public void SQLQueryTask(string sqltask)
             {
                 try
@@ -180,30 +214,73 @@ namespace PullPushDB
                     Environment.Exit(1);
                 }
             }
-
-            public void PushFlatFileToDB(string strFilePath, string tabName, Int32 flushed_batch_size,
-                                                     bool showprogress, bool removeTab)
+            /// <summary>
+            /// Method pushes text file into SQL Server DB
+            /// </summary>
+            /// <param name="strFilePath">Path to file, e.g.: c:\\Users\\Username\\Downloads\\test.csv</param>
+            /// <param name="tabName">Table name on SQL Server DB</param>
+            /// <param name="flushed_batch_size">Batch size defined in BulkCopy</param>
+            /// <param name="showprogress">Show how many records has already been pushed into table</param>
+            /// <param name="removeTab">Delete records in the table before</param>
+            /// <param name="autoSep">Separator, if true autodetect separator is used or false, comma separated is used</param>
+            public void PushFlatFileToDB(string strFilePath, string tabName, Int32 flushed_batch_size, SepType sepType,
+                                                     bool showprogress = false, bool removeTab = false)
             {
                 DataTable dt = new DataTable();
+                DataTable dataTypes = new DataTable();
                 Int64 rowsCount = 0;
+                char sep = '\0';
+
                 try
                 {
-                    DataTable dataTypes = ExtractDataTypesFromSQLTable(tabName);
+                    if (IfSQLTableExists(tabName))
+                    {
+                        dataTypes = ExtractDataTypesFromSQLTable(tabName);
+                    }
+                    else
+                    {
+                        ShowPrintMethod("Table " + tabName + " doesn't exist");
+                        Environment.Exit(1);
+                    }
+                    
                     string str1 = string.Empty;
                     int dt_rows_count = dataTypes.Rows.Count;
 
-                    // char sep = get_sep(strFilePath, dataTypes);
-                    char sep = '\t';
-
+                    using (StreamReader sr_sep = new StreamReader(strFilePath))
+                    {
+                        switch (sepType)
+                        {
+                            case SepType.auto:
+                                IList<char> seps = new List<char>() { '\t', ',', '.', ';' };
+                                sep = Convert.ToChar(AutoDetectCsvSeparator.DetectSeparator(sr_sep, 250000, seps).ToString());
+                                break;
+                            case SepType.comma:
+                                sep = ',';
+                                break;
+                            case SepType.tilda:
+                                sep = '~';
+                                break;
+                            case SepType.tab:
+                                sep = '\t';
+                                break;
+                            case SepType.space:
+                                sep = ' ';
+                                break;
+                            case SepType.dot:
+                                sep = '.';
+                                break;
+                            default:
+                                throw (new ArgumentException("Invalid separator"));
+                        }
+                    }
+                        
                     using (StreamReader sr = new StreamReader(strFilePath))
                     {
                         string[] headers = sr.ReadLine().Split(sep);
 
                         if (headers.Length != dt_rows_count)
                         {
-                            ShowPrintMethod("CSV file has different count of columns than table " + tabName + "!!!");
-                            ShowPrintMethod("Data Frame has " + headers.Length + " columns and table on SQL Server has " + dt_rows_count + " columns!");
-                            ShowPrintMethod("Tip: Try also check '" + sep + "' somewhere in the text in your DataFrame or DataTable you are trying to push to SQL Server,\nbecause tabulator is used as a separator!");
+                            ShowPrintMethod("CSV file has different count of columns than table " + tabName + "!");
                             Environment.Exit(1);
                         }
 
@@ -346,24 +423,6 @@ namespace PullPushDB
                     Environment.Exit(1);
                 }
                 return table;
-            }
-
-            public char GetSeparator(string strFilePath, DataTable dt)
-            {
-                char sep;
-                using (StreamReader sr = new StreamReader(strFilePath))
-                {
-                    IList<char> seps = new List<char>() { '\t', ',', '.', ';' };
-                    sep = Convert.ToChar(AutoDetectCsvSeparator.Detect(sr, dt.Rows.Count * 10000, seps).ToString());
-
-                    if (sep != '\t')
-                    {
-                        ShowPrintMethod("Try to reduce '" + sep + "' in your data.frame or data.table you are trying to push to SQL Server,\nbecause tabulator is used as a separator!");
-                        ShowPrintMethod("Use something like gsub('" + sep + "', ' ', df.column) in R");
-                        Environment.Exit(1);
-                    }
-                }
-                return sep;
             }
 
             public bool IfSQLTableExists(string tabname)
