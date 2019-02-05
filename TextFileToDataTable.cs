@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Diagnostics;
+
 class TextFileToDataTable
 {
     /// <summary>
@@ -16,7 +17,6 @@ class TextFileToDataTable
     /// <param name="countRowsToBeStored">How many rows should be stored into data table from csv file</param>
     /// <param name="sep">Separator for columns delimited</param>
     /// <returns></returns>
-
     public static DataTable CsvToDataTable(string pathToCSV, Int32 countRowsToBeStored, char sep)
     {
         DataTable dtCsv = new DataTable();

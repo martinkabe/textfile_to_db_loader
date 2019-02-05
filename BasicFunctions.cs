@@ -16,25 +16,15 @@ namespace PullPushDB
 {
     namespace BasicOperations
     {
-        public enum SepType
-        {
-            auto,
-            comma,
-            tilda,
-            tab,
-            space,
-            dot
-        }
-
         public class BasicFunctions
         {
             private readonly IPrintMethod _iprintmethod;
             private string _connectionString;
             /// <summary>
-            /// Constructor for BasicOperations.BasicFunctions class
+            /// Constructor for BasicOperations.BasicFunctions class.
             /// </summary>
             /// <param name="conString">Connection string, e.g. LAPTOP-USERNAME\\SQLEXPRESS;Initial Catalog=DBName;Integrated Security=True;</param>
-            /// <param name="iprintmethod">Instance of class, e.g.: new ConsoleWritelinePrintMethod() uses Console.Writeline() method</param>
+            /// <param name="iprintmethod">Instance of class, e.g.: new ConsoleWritelinePrintMethod() uses Console.Writeline() method.</param>
             public BasicFunctions(string conString, IPrintMethod iprintmethod)
             {
                 _connectionString = conString;
@@ -42,18 +32,19 @@ namespace PullPushDB
             }
 
             /// <summary>
-            /// Wrapper for IPrintMethod interface, e.g.: new ConsoleWritelinePrintMethod() in ctor represents Console.Writeline() method
+            /// Wrapper for IPrintMethod interface, e.g.: new ConsoleWritelinePrintMethod() in ctor represents Console.Writeline() method.
             /// </summary>
-            /// <param name="message"></param>
+            /// <param name="message">String message.</param>
             public void ShowPrintMethod(string message) => _iprintmethod.PrintMethod(message);
+
             /// <summary>
-            /// Pushes the data into SQL Server DB using SqlBulkCopy class
+            /// Pushes the data into SQL Server DB using SqlBulkCopy class.
             /// </summary>
-            /// <param name="dtable">DataTable as input parameter</param>
-            /// <param name="sqlTableName">Name of table on SQL Server database</param>
-            /// <param name="batch_size">The size of batch in BulkCopy</param>
-            /// <param name="timeout">BulkCopy timeout</param>
-            public void InsertDataIntoSQLServerUsingSQLBulkCopy_2(DataTable dtable, string sqlTableName, Int32 batch_size, int timeout = 0)
+            /// <param name="dtable">DataTable as input parameter.</param>
+            /// <param name="sqlTableName">Name of table on SQL Server database.</param>
+            /// <param name="batch_size">The size of batch in BulkCopy, default 1000 records.</param>
+            /// <param name="timeout">BulkCopy timeout.</param>
+            public void InsertDataIntoSQLServerUsingSQLBulkCopy_2(DataTable dtable, string sqlTableName, Int32 batch_size = 1000, int timeout = 0)
             {
                 try
                 {
@@ -120,7 +111,7 @@ namespace PullPushDB
             /// <summary>
             /// TRUNCATE table on SQL Server. If TRUNCATE is not allowed, catch exception uses DROP.
             /// </summary>
-            /// <param name="sqlTableName">Name of table on SQL Server database</param>
+            /// <param name="sqlTableName">Name of table on SQL Server database.</param>
             public void CleanUpTable(string sqlTableName)
             {
                 try
@@ -162,9 +153,9 @@ namespace PullPushDB
                 }
             }
             /// <summary>
-            /// DROP table uses SQL command DROP table
+            /// DROP table uses SQL command DROP table.
             /// </summary>
-            /// <param name="sqlTableName">Name of table on SQL Server database</param>
+            /// <param name="sqlTableName">Name of table on SQL Server database.</param>
             public void DropTable(string sqlTableName)
             {
                 try
@@ -189,9 +180,9 @@ namespace PullPushDB
                 }
             }
             /// <summary>
-            /// POST SQL QUERY into DB
+            /// POST SQL QUERY into DB.
             /// </summary>
-            /// <param name="sqltask">SQL Query, e.g. UPDATE table...</param>
+            /// <param name="sqltask">SQL Query, e.g. UPDATE table.</param>
             public void SQLQueryTask(string sqltask)
             {
                 try
@@ -215,21 +206,31 @@ namespace PullPushDB
                 }
             }
             /// <summary>
-            /// Method pushes text file into SQL Server DB
+            /// Method pushes text file into SQL Server DB.
             /// </summary>
-            /// <param name="strFilePath">Path to file, e.g.: c:\\Users\\Username\\Downloads\\test.csv</param>
-            /// <param name="tabName">Table name on SQL Server DB</param>
-            /// <param name="flushed_batch_size">Batch size defined in BulkCopy</param>
-            /// <param name="showprogress">Show how many records has already been pushed into table</param>
-            /// <param name="removeTab">Delete records in the table before</param>
-            /// <param name="autoSep">Separator, if true autodetect separator is used or false, comma separated is used</param>
-            public void PushFlatFileToDB(string strFilePath, string tabName, Int32 flushed_batch_size, SepType sepType,
-                                                     bool showprogress = false, bool removeTab = false)
+            /// <param name="strFilePath">Path to file, e.g.: c:\\Users\\Username\\Downloads\\test.csv.</param>
+            /// <param name="tabName">Table name on SQL Server DB.</param>
+            /// <param name="sepType">The type of text separator. Default is SepType.auto (detects separator from text file automatically).</param>
+            /// <param name="flushed_batch_size">Batch size defined in BulkCopy.</param>
+            /// <param name="sqlBulkCopyTimeOut">Time out for sqlBulkCopy.</param>
+            /// <param name="showprogress">Show how many records has already been pushed into table (based on flushed_batch_size parameter).</param>
+            /// <param name="removeTabBeforePushData">Delete records in the table before pushing new one.</param>
+            /// <param name="createTableIfNotExist">Create table if doesn't exist.</param>
+            /// <param name="rowstoestimatedt">How many rows are used to estimate data types for newly created table on SQL Server DB.</param>
+            public void PushFlatFileToDB(string strFilePath,
+                                         string tabName,
+                                         SepType sepType = SepType.auto,
+                                         Int32 flushed_batch_size = 1000,
+                                         int sqlBulkCopyTimeOut = 0,
+                                         bool showprogress = false,
+                                         bool removeTabBeforePushData = false,
+                                         bool createTableIfNotExist = false,
+                                         int rowstoestimatedt = 250000)
             {
                 DataTable dt = new DataTable();
                 DataTable dataTypes = new DataTable();
                 Int64 rowsCount = 0;
-                char sep = '\0';
+                char sep = AutoMethods.DetectSeparator(strFilePath, sepType);
 
                 try
                 {
@@ -239,41 +240,21 @@ namespace PullPushDB
                     }
                     else
                     {
-                        ShowPrintMethod("Table " + tabName + " doesn't exist");
-                        Environment.Exit(1);
+                        // table doesn't exist
+                        if (createTableIfNotExist)
+                        {
+                            CreateSQLTable(strFilePath, rowstoestimatedt, tabName, sepType);
+                        }
+                        else
+                        {
+                            ShowPrintMethod("Table " + tabName + " doesn't exist");
+                            Environment.Exit(1);
+                        }   
                     }
                     
                     string str1 = string.Empty;
                     int dt_rows_count = dataTypes.Rows.Count;
 
-                    using (StreamReader sr_sep = new StreamReader(strFilePath))
-                    {
-                        switch (sepType)
-                        {
-                            case SepType.auto:
-                                IList<char> seps = new List<char>() { '\t', ',', '.', ';' };
-                                sep = Convert.ToChar(AutoDetectCsvSeparator.DetectSeparator(sr_sep, 250000, seps).ToString());
-                                break;
-                            case SepType.comma:
-                                sep = ',';
-                                break;
-                            case SepType.tilda:
-                                sep = '~';
-                                break;
-                            case SepType.tab:
-                                sep = '\t';
-                                break;
-                            case SepType.space:
-                                sep = ' ';
-                                break;
-                            case SepType.dot:
-                                sep = '.';
-                                break;
-                            default:
-                                throw (new ArgumentException("Invalid separator"));
-                        }
-                    }
-                        
                     using (StreamReader sr = new StreamReader(strFilePath))
                     {
                         string[] headers = sr.ReadLine().Split(sep);
@@ -291,13 +272,13 @@ namespace PullPushDB
                             //if (!headers[i].ToString().Contains(drh.ItemArray[0].ToString()))
                             if (headers[i].ToString().Replace("\"", "").ToLower() != drh.ItemArray[0].ToString().ToLower())
                             {
-                                ShowPrintMethod("You need to reorder columns in your csv according to columns in table " + tabName + "!!!");
-                                ShowPrintMethod("Column " + headers[i].ToString().Replace("\"", "") + " in your data.table or data.frame\ndoesn't correspond with column " + drh.ItemArray[0].ToString() + " defined in table " + tabName);
+                                ShowPrintMethod("You need to reorder columns in your csv based to columns in " + tabName + " table!");
+                                ShowPrintMethod("Column " + headers[i].ToString().Replace("\"", "") + " in your data.table or data.frame\ndoesn't correspond with column " + drh.ItemArray[0].ToString() + " defined in " + tabName + " table");
                                 Environment.Exit(1);
                             }
                         }
 
-                        if (removeTab)
+                        if (removeTabBeforePushData)
                         {
                             ShowPrintMethod("Cleaning table " + tabName);
                             CleanUpTable(tabName);
@@ -313,6 +294,7 @@ namespace PullPushDB
                             else if (dr.ItemArray[1].ToString() == "smallint") { dt.Columns.Add(dr.ItemArray[0].ToString(), typeof(Int16)); }
                             else if (dr.ItemArray[1].ToString() == "int") { dt.Columns.Add(dr.ItemArray[0].ToString(), typeof(Int32)); }
                             else if (dr.ItemArray[1].ToString() == "bigint") { dt.Columns.Add(dr.ItemArray[0].ToString(), typeof(Int64)); }
+                            else if (dr.ItemArray[1].ToString() == "bit") { dt.Columns.Add(dr.ItemArray[0].ToString(), typeof(Boolean)); }
                             else if (dr.ItemArray[1].ToString() == "decimal" || dr.ItemArray[1].ToString() == "numeric") { dt.Columns.Add(dr.ItemArray[0].ToString(), typeof(decimal)); }
                             else if (dr.ItemArray[1].ToString() == "uniqueidentifier") { dt.Columns.Add(dr.ItemArray[0].ToString(), typeof(Guid)); }
                             else { dt.Columns.Add(dr.ItemArray[0].ToString(), typeof(string)); }
@@ -339,6 +321,11 @@ namespace PullPushDB
                                     else if (dtr.ItemArray[1].ToString() == "int") { rows[i] = Int32.Parse(rows[i], NumberStyles.Any).ToString(); }
                                     else if (dtr.ItemArray[1].ToString() == "datetime") { rows[i] = DateTime.Parse(rows[i], null, DateTimeStyles.RoundtripKind).ToString(); }
                                     else if (dtr.ItemArray[1].ToString() == "float") { rows[i] = double.Parse(rows[i], System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture).ToString(); }
+                                    else if (dtr.ItemArray[1].ToString() == "bit")
+                                    {
+                                        Boolean.TryParse(StringExtensions.ToBoolean(rows[i]).ToString(), out bool parsedValue);
+                                        rows[i] = parsedValue.ToString();
+                                    }
                                     else if (dtr.ItemArray[1].ToString() == "real") { rows[i] = Single.Parse(rows[i], System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture).ToString(); }
                                     else if (dtr.ItemArray[1].ToString() == "decimal" || dtr.ItemArray[1].ToString() == "numeric") { rows[i] = Decimal.Parse(rows[i], System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture).ToString(); }
                                     else { rows[i] = rows[i].ToString().Replace("\"", ""); }
@@ -350,7 +337,7 @@ namespace PullPushDB
 
                             if (batchsize == flushed_batch_size)
                             {
-                                InsertDataIntoSQLServerUsingSQLBulkCopy_2(dt, tabName, flushed_batch_size);
+                                InsertDataIntoSQLServerUsingSQLBulkCopy_2(dt, tabName, flushed_batch_size, sqlBulkCopyTimeOut);
                                 dt.Rows.Clear();
                                 batchsize = 0;
                                 if (showprogress) { ShowPrintMethod("Flushing " + flushed_batch_size + " rows (" + (rowsCount + 1) + " records already imported)"); }
@@ -358,7 +345,7 @@ namespace PullPushDB
                             rowsCount += 1;
                             // rowCounter++;
                         }
-                        InsertDataIntoSQLServerUsingSQLBulkCopy_2(dt, tabName, flushed_batch_size);
+                        InsertDataIntoSQLServerUsingSQLBulkCopy_2(dt, tabName, flushed_batch_size, sqlBulkCopyTimeOut);
                         dt.Rows.Clear();
                     }
                     ShowPrintMethod(rowsCount + " records imported");
@@ -374,7 +361,11 @@ namespace PullPushDB
                     ShowPrintMethod(ex.Message.ToString());
                 }
             }
-
+            /// <summary>
+            /// Method extracts columns' data types from table stored on SQL Server.
+            /// </summary>
+            /// <param name="tabName">Table name on SQL Server DB.</param>
+            /// <returns></returns>
             public DataTable ExtractDataTypesFromSQLTable(string tabName)
             {
                 DataTable table = new DataTable();
@@ -424,7 +415,11 @@ namespace PullPushDB
                 }
                 return table;
             }
-
+            /// <summary>
+            /// Method tests whether table exists on SQL Server DB.
+            /// </summary>
+            /// <param name="tabname">Table name on SQL Server DB.</param>
+            /// <returns></returns>
             public bool IfSQLTableExists(string tabname)
             {
                 bool exists = false;
@@ -454,43 +449,46 @@ namespace PullPushDB
                 }
                 return (exists);
             }
-
-            public DataTable GetDataTableFromDataReader(IDataReader dataReader)
+            /// <summary>
+            /// Method stores table on SQL Server into DataTable object
+            /// </summary>
+            /// <param name="sqlQuery">SQL query to download data from SQL Server</param>
+            /// <returns></returns>
+            public DataTable FromSQLToDataTable(string sqlQuery)
             {
-                DataTable schemaTable = dataReader.GetSchemaTable();
-                DataTable resultTable = new DataTable();
-
-                foreach (DataRow dataRow in schemaTable.Rows)
+                DataTable table = new DataTable();
+                try
                 {
-                    DataColumn dataColumn = new DataColumn();
-                    dataColumn.ColumnName = dataRow["ColumnName"].ToString();
-                    dataColumn.DataType = Type.GetType(dataRow["DataType"].ToString());
-                    dataColumn.ReadOnly = (bool)dataRow["IsReadOnly"];
-                    dataColumn.AutoIncrement = (bool)dataRow["IsAutoIncrement"];
-                    dataColumn.Unique = (bool)dataRow["IsUnique"];
-
-                    resultTable.Columns.Add(dataColumn);
-                }
-                while (dataReader.Read())
-                {
-                    DataRow dataRow = resultTable.NewRow();
-                    for (int i = 0; i < resultTable.Columns.Count; i++)
+                    using (SqlConnection con = new SqlConnection(this._connectionString))
                     {
-                        dataRow[i] = dataReader[i];
+                        using (SqlCommand cmd = new SqlCommand(sqlQuery, con))
+                        {
+                            SqlDataAdapter ds = new SqlDataAdapter(cmd);
+                            ds.Fill(table);
+                        }
+                        con.Close();
                     }
-                    resultTable.Rows.Add(dataRow);
                 }
-                return resultTable;
+                catch (Exception ex)
+                {
+                    ShowPrintMethod(ex.Message.ToString());
+                    Environment.Exit(1);
+                }
+                return table;
             }
 
-            // Write data into csv:
-            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/8ef26d1e-b0a4-4cdc-ad0a-5dd7a7bcd333/large-csv-file-creator-in-c?forum=csharpgeneral
-            public void WriteFromDBToCSV(string sql_query, string csvpath, bool showprogress)
+            /// <summary>
+            /// Write table on SQL Server into text file.
+            /// </summary>
+            /// <param name="sql_query"></param>
+            /// <param name="csvpath"></param>
+            /// <param name="showprogress"></param>
+            /// <param name="sep"></param>
+            public void WriteFromDBToCSV(string sql_query, string csvpath, bool showprogress, string sep = ",")
             {
                 // DataTable dataTable = new DataTable();
                 StringBuilder sb = new StringBuilder();
                 DataTable dataTable = new DataTable();
-                string sep = "~";
 
                 try
                 {
@@ -505,7 +503,7 @@ namespace PullPushDB
 
                             using (IDataReader rdr = command.ExecuteReader())
                             {
-                                dataTable = GetDataTableFromDataReader(rdr);
+                                dataTable = DataExtraction.GetDataTableFromDataReader(rdr);
                             }
                             //IDataReader rdr = new SqlCommand(sql_query, con).ExecuteReader(CommandBehavior.CloseConnection);
                             //dataTable = GetDataTableFromDataReader(rdr);
@@ -719,16 +717,14 @@ namespace PullPushDB
                 }
             }
 
-            public void CreateSQLTable(string pathtocsv, Int32 rowstoestimatedatatype, string tablename)
+            public void CreateSQLTable(string pathtocsv,
+                                       Int32 rowstoestimatedatatype,
+                                       string tablename,
+                                       SepType sepType = SepType.auto)
             {
-                char separator;
-                using (StreamReader sr = new StreamReader(pathtocsv))
-                {
-                    // IList<char> seps = new List<char>() { '\t', ',', '.', ';' };
-                    //separator = Convert.ToChar(AutoDetectCsvSeparator.Detect(sr, 100000, seps).ToString());
-                    separator = '\t';
-                }
-                string[,] sqldts = DataTypeIdentifier.SQLDataTypes(pathtocsv, rowstoestimatedatatype, separator);
+                char sep = AutoMethods.DetectSeparator(pathtocsv, sepType);
+                
+                string[,] sqldts = DataTypeIdentifier.SQLDataTypes(pathtocsv, rowstoestimatedatatype, sep);
 
                 string createTable_string = string.Empty;
 
@@ -784,5 +780,4 @@ namespace PullPushDB
             }
         }
     }
-    
 }

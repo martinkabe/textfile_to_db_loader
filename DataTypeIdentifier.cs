@@ -9,14 +9,6 @@ using System.Diagnostics;
 
 class DataTypeIdentifier
 {
-    /// <summary>
-    /// Gets the datatype for the Datacolumn column
-    /// </summary>
-    /// <param name="column">Datacolumn to get datatype of</param>
-    /// <param name="dt">DataTable to get datatype from</param>
-    /// <param name="colSize">ref value to return size for string type</param>
-    /// <returns></returns>
-
     // check double type
     public static bool IsDoubleType(DataTable dt, int colNumber)
     {
