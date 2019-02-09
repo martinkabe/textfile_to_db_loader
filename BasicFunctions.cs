@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -44,7 +45,7 @@ namespace PullPushDB
             /// <param name="sqlTableName">Name of table on SQL Server database.</param>
             /// <param name="batch_size">The size of batch in BulkCopy, default 1000 records.</param>
             /// <param name="timeout">BulkCopy timeout.</param>
-            public void InsertDataIntoSQLServerUsingSQLBulkCopy_2(DataTable dtable, string sqlTableName, Int32 batch_size = 1000, int timeout = 0)
+            public void InsertDataIntoSQLServerUsingSQLBulkCopy(DataTable dtable, string sqlTableName, Int32 batch_size = 1000, int timeout = 0)
             {
                 try
                 {
@@ -244,6 +245,7 @@ namespace PullPushDB
                         if (createTableIfNotExist)
                         {
                             CreateSQLTable(strFilePath, rowstoestimatedt, tabName, sepType);
+                            dataTypes = ExtractDataTypesFromSQLTable(tabName);
                         }
                         else
                         {
@@ -337,7 +339,7 @@ namespace PullPushDB
 
                             if (batchsize == flushed_batch_size)
                             {
-                                InsertDataIntoSQLServerUsingSQLBulkCopy_2(dt, tabName, flushed_batch_size, sqlBulkCopyTimeOut);
+                                InsertDataIntoSQLServerUsingSQLBulkCopy(dt, tabName, flushed_batch_size, sqlBulkCopyTimeOut);
                                 dt.Rows.Clear();
                                 batchsize = 0;
                                 if (showprogress) { ShowPrintMethod("Flushing " + flushed_batch_size + " rows (" + (rowsCount + 1) + " records already imported)"); }
@@ -345,7 +347,7 @@ namespace PullPushDB
                             rowsCount += 1;
                             // rowCounter++;
                         }
-                        InsertDataIntoSQLServerUsingSQLBulkCopy_2(dt, tabName, flushed_batch_size, sqlBulkCopyTimeOut);
+                        InsertDataIntoSQLServerUsingSQLBulkCopy(dt, tabName, flushed_batch_size, sqlBulkCopyTimeOut);
                         dt.Rows.Clear();
                     }
                     ShowPrintMethod(rowsCount + " records imported");
@@ -478,17 +480,24 @@ namespace PullPushDB
             }
 
             /// <summary>
-            /// Write table on SQL Server into text file.
+            /// Write table on SQL Server into text file using StringBuilder. Writing all the data into StringBuilder and then into text file.
             /// </summary>
             /// <param name="sql_query"></param>
             /// <param name="csvpath"></param>
+            /// <param name="sepType"></param>
             /// <param name="showprogress"></param>
-            /// <param name="sep"></param>
-            public void WriteFromDBToCSV(string sql_query, string csvpath, bool showprogress, string sep = ",")
+            /// <param name="batchSize"></param>
+            public void WriteFromDBToCSV(string sql_query,
+                                         string csvpath,
+                                         SepType sepType = SepType.auto,
+                                         bool showprogress = false,
+                                         int batchSize = 10000)
             {
                 // DataTable dataTable = new DataTable();
                 StringBuilder sb = new StringBuilder();
                 DataTable dataTable = new DataTable();
+                // define separator
+                char sep = AutoMethods.SetSeparator(sepType);
 
                 try
                 {
@@ -518,7 +527,7 @@ namespace PullPushDB
                             for (int i = 0; i < dataTable.Columns.Count; i++)
                             {
                                 sb.Append(dataTable.Columns[i].ColumnName);
-                                sb.Append(i == dataTable.Columns.Count - 1 ? "\n" : sep);
+                                sb.Append(i == dataTable.Columns.Count - 1 ? "\n" : sep.ToString());
                             }
 
                             string day_s = string.Empty;
@@ -559,7 +568,7 @@ namespace PullPushDB
                                             value = dt_val.Year.ToString() + "-" + month_s + "-" + day_s + " " + dt_val.TimeOfDay.ToString();
                                         }
                                         sb.Append(value);
-                                        sb.Append(i == dataTable.Columns.Count - 1 ? "\n" : sep);
+                                        sb.Append(i == dataTable.Columns.Count - 1 ? "\n" : sep.ToString());
                                     }
                                     else if (row[i].GetType().Name == "Decimal" |
                                             row[i].GetType().Name == "Numeric" |
@@ -571,18 +580,18 @@ namespace PullPushDB
                                         if (double.TryParse(row[i].ToString(), out val))
                                         {
                                             sb.Append(val.ToString(CultureInfo.InvariantCulture));
-                                            sb.Append(i == dataTable.Columns.Count - 1 ? "\n" : sep);
+                                            sb.Append(i == dataTable.Columns.Count - 1 ? "\n" : sep.ToString());
                                         }
                                     }
                                     else
                                     {
                                         sb.Append(row[i].ToString());
-                                        sb.Append(i == dataTable.Columns.Count - 1 ? "\n" : sep);
+                                        sb.Append(i == dataTable.Columns.Count - 1 ? "\n" : sep.ToString());
                                     }
                                 }
                                 counter++;
                                 c_ounter++;
-                                if (c_ounter == 100000 & showprogress)
+                                if (c_ounter == batchSize & showprogress)
                                 {
                                     ShowPrintMethod(counter + " rows inserted from StringBuilder --> csv.");
                                     File.AppendAllText(csvpath, sb.ToString());
@@ -608,13 +617,24 @@ namespace PullPushDB
                 }
             }
 
-            // Write sql data directly to flat file
-            public void WriteToFileFromDB(string sql_query, string csvpath, bool showprogress)
+            /// <summary>
+            /// Writing the data into text file via StreamWriter. Writing directly into text file.
+            /// </summary>
+            /// <param name="sql_query"></param>
+            /// <param name="csvpath"></param>
+            /// <param name="sepType"></param>
+            /// <param name="showprogress"></param>
+            /// <param name="batchSize"></param>
+            public void WriteToFileFromDB(string sql_query,
+                                          string csvpath,
+                                          SepType sepType = SepType.auto,
+                                          bool showprogress = false,
+                                          int batchSize = 10000)
             {
                 try
                 {
                     // define separator
-                    string sep = "~";
+                    char sep = AutoMethods.SetSeparator(sepType);
                     // define counter for writing into flat file
                     Int32 cntr = 0;
                     Int32 cntr_overall = 0;
@@ -640,7 +660,7 @@ namespace PullPushDB
                         for (int i = 0; i < sqlReader.FieldCount; i++)
                             output[i] = sqlReader.GetName(i);
 
-                        file.WriteLine(string.Join(sep, output));
+                        file.WriteLine(string.Join(sep.ToString(), output));
 
                         while (sqlReader.Read())
                         {
@@ -698,12 +718,12 @@ namespace PullPushDB
                                 }
                                 counter += 1;
                             }
-                            if (cntr == 100000 && showprogress)
+                            if (cntr == batchSize && showprogress)
                             {
-                                ShowPrintMethod("Flushed 100000 records into flat file, " + cntr_overall + " records are already there.");
+                                ShowPrintMethod("Flushed " + batchSize + " records into flat file, " + cntr_overall + " records are already there.");
                                 cntr = 0;
                             }
-                            file.WriteLine(string.Join(sep, output));
+                            file.WriteLine(string.Join(sep.ToString(), output));
                             cntr_overall += 1;
                             cntr += 1;
                         }
@@ -716,7 +736,13 @@ namespace PullPushDB
                     Environment.Exit(1);
                 }
             }
-
+            /// <summary>
+            /// Create SQL table based on the data in text file.
+            /// </summary>
+            /// <param name="pathtocsv"></param>
+            /// <param name="rowstoestimatedatatype"></param>
+            /// <param name="tablename"></param>
+            /// <param name="sepType"></param>
             public void CreateSQLTable(string pathtocsv,
                                        Int32 rowstoestimatedatatype,
                                        string tablename,
@@ -759,6 +785,10 @@ namespace PullPushDB
                     Environment.Exit(1);
                 }
             }
+            /// <summary>
+            /// Test if connection to the SQL Server is valid. Returns Tuple<bool, string>(true/false, string.Empty/SqlException error message).
+            /// </summary>
+            /// <returns></returns>
             public Tuple<bool, string> IsServerConnected()
             {
                 using (SqlConnection connection = new SqlConnection(this._connectionString))
@@ -777,6 +807,78 @@ namespace PullPushDB
                         return tpl;
                     }
                 }
+            }
+            /// <summary>
+            /// Converts data from text file into DataTable object.
+            /// </summary>
+            /// <param name="pathtocsv"></param>
+            /// <param name="sepType"></param>
+            /// <returns></returns>
+            public DataTable TextFileToDataTableAll(string pathtocsv,
+                                                    SepType sepType = SepType.auto)
+            {
+                char sep = AutoMethods.DetectSeparator(pathtocsv, sepType);
+                return TextFileToDataTable.CsvToDataTableAll(pathtocsv, sep);
+            }
+            /// <summary>
+            /// Calling SQL stored procedure.
+            /// </summary>
+            /// <param name="spName">Name of stored procedure on SQL Server. E.g. dbo.sp_SelectZerosFromBoolData.</param>
+            /// <param name="arrayListParams">ArrayList of parameters.</param>
+            /// <param name="arrayListValues">ArrayList of values.</param>
+            /// <param name="returningData">True: returns data in DataTable (SELECT), False: calls stored procedure without returning any data (INSERT, UPDATE, DELETE).</param>
+            /// <returns></returns>
+            public DataTable CallSQLStoredProcedure(string spName,
+                                                ArrayList arrayListParams,
+                                                ArrayList arrayListValues,
+                                                bool returningData = false)
+            {
+                DataTable dataTable = new DataTable();
+                try
+                {
+                    using (SqlConnection con = new SqlConnection(this._connectionString))
+                    {
+                        using (SqlCommand cmd = new SqlCommand(spName, con))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+
+                            if (arrayListParams.Count != 0)
+                            {
+                                if (arrayListParams.Count == arrayListValues.Count)
+                                {
+                                    for (int i = 0; i < arrayListParams.Count; ++i)
+                                    {
+                                        cmd.Parameters.Add(new SqlParameter(arrayListParams[i].ToString(), arrayListValues[i]));
+                                    }
+                                }
+                                else
+                                {
+                                    ShowPrintMethod("List of parameters is not equal to list of values");
+                                    Environment.Exit(1);
+                                }
+                            }
+                            con.Open();
+                            if (returningData)
+                            {
+                                using (SqlDataReader rdr = cmd.ExecuteReader())
+                                {
+                                    dataTable.Load(rdr);
+                                    ShowPrintMethod("DataTable with " + dataTable.Columns.Count + " columns and " + dataTable.Rows.Count + " returned.");
+                                }
+                            }
+                            else
+                            {
+                                var results = cmd.ExecuteNonQuery();
+                                ShowPrintMethod(results + " records affected and empty DataTable returned.");
+                            }       
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowPrintMethod(ex.Message.ToString());
+                }
+                return dataTable;
             }
         }
     }

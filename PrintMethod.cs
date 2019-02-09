@@ -11,6 +11,5 @@ public class PrintMethod
     {
         _iprintmethod = iprintmethod;
     }
-
     public void ShowPrintMethod(string msg) => _iprintmethod.PrintMethod(msg);
 }

@@ -109,7 +109,7 @@ class DataTypeIdentifier
     public static string[,] SQLDataTypes(string pathtocsv, Int32 norowsreview, char sep)
     {
         // "c:\\PathToFile\\data.csv"
-        DataTable dt = TextFileToDataTable.CsvToDataTable(pathtocsv, norowsreview, sep);
+        DataTable dt = TextFileToDataTable.CsvToDataTableToEstimateSep(pathtocsv, norowsreview, sep);
         string[,] sqldatatype_array = new string[2, dt.Columns.Count];
 
         try
@@ -164,8 +164,7 @@ class DataTypeIdentifier
         }
         catch (Exception ex)
         {
-            Debug.Print(ex.Message.ToString());
-            Environment.Exit(1);
+            throw ex;
         }
         return sqldatatype_array;
     }

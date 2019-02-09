@@ -121,4 +121,45 @@ class AutoMethods
         }
         return sep;
     }
+
+    public static char SetSeparator(SepType sepType = SepType.auto)
+    {
+        char sep = '\0';
+        switch (sepType)
+        {
+            case SepType.auto:
+                sep = ',';
+                break;
+            case SepType.comma:
+                sep = ',';
+                break;
+            case SepType.tilda:
+                sep = '~';
+                break;
+            case SepType.tab:
+                sep = '\t';
+                break;
+            case SepType.space:
+                sep = ' ';
+                break;
+            case SepType.dot:
+                sep = '.';
+                break;
+            case SepType.dash:
+                sep = '-';
+                break;
+            case SepType.semiColon:
+                sep = ';';
+                break;
+            case SepType.pipe:
+                sep = '|';
+                break;
+            case SepType.caret:
+                sep = '^';
+                break;
+            default:
+                throw (new ArgumentException("Invalid separator!"));
+        }
+        return sep;
+    }
 }
