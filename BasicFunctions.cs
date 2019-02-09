@@ -221,7 +221,7 @@ namespace PullPushDB
             public void PushFlatFileToDB(string strFilePath,
                                          string tabName,
                                          SepType sepType = SepType.auto,
-                                         Int32 flushed_batch_size = 1000,
+                                         Int32 flushed_batch_size = 100000,
                                          int sqlBulkCopyTimeOut = 0,
                                          bool showprogress = false,
                                          bool removeTabBeforePushData = false,
@@ -244,7 +244,7 @@ namespace PullPushDB
                         // table doesn't exist
                         if (createTableIfNotExist)
                         {
-                            CreateSQLTable(strFilePath, rowstoestimatedt, tabName, sepType);
+                            CreateSQLTable(strFilePath, tabName, rowstoestimatedt, sepType);
                             dataTypes = ExtractDataTypesFromSQLTable(tabName);
                         }
                         else
@@ -482,16 +482,16 @@ namespace PullPushDB
             /// <summary>
             /// Write table on SQL Server into text file using StringBuilder. Writing all the data into StringBuilder and then into text file.
             /// </summary>
-            /// <param name="sql_query"></param>
-            /// <param name="csvpath"></param>
-            /// <param name="sepType"></param>
-            /// <param name="showprogress"></param>
-            /// <param name="batchSize"></param>
+            /// <param name="sql_query">SQL SELECT statement.</param>
+            /// <param name="csvpath">Patch to *.csv file.</param>
+            /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
+            /// <param name="showprogress">Show already flushed data into csv file.</param>
+            /// <param name="batchSize">Batch size shows already flushed data into *.csv file. Default 100000.</param>
             public void WriteFromDBToCSV(string sql_query,
                                          string csvpath,
                                          SepType sepType = SepType.auto,
                                          bool showprogress = false,
-                                         int batchSize = 10000)
+                                         int batchSize = 100000)
             {
                 // DataTable dataTable = new DataTable();
                 StringBuilder sb = new StringBuilder();
@@ -620,11 +620,11 @@ namespace PullPushDB
             /// <summary>
             /// Writing the data into text file via StreamWriter. Writing directly into text file.
             /// </summary>
-            /// <param name="sql_query"></param>
-            /// <param name="csvpath"></param>
-            /// <param name="sepType"></param>
-            /// <param name="showprogress"></param>
-            /// <param name="batchSize"></param>
+            /// <param name="sql_query">SQL SELECT statement.</param>
+            /// <param name="csvpath">Patch to *.csv file.</param>
+            /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
+            /// <param name="showprogress">Show already flushed data into csv file.</param>
+            /// <param name="batchSize">Batch size shows already flushed data into *.csv file. Default 100000.</param>
             public void WriteToFileFromDB(string sql_query,
                                           string csvpath,
                                           SepType sepType = SepType.auto,
@@ -739,13 +739,13 @@ namespace PullPushDB
             /// <summary>
             /// Create SQL table based on the data in text file.
             /// </summary>
-            /// <param name="pathtocsv"></param>
-            /// <param name="rowstoestimatedatatype"></param>
-            /// <param name="tablename"></param>
-            /// <param name="sepType"></param>
+            /// <param name="pathtocsv">Patch to *.csv file.</param>
+            /// <param name="tablename">Name of the table on SQL Server needs to be created.</param>
+            /// <param name="rowstoestimatedatatype">How many records are supposed to be used to data type identification, default is 250000.</param>
+            /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
             public void CreateSQLTable(string pathtocsv,
-                                       Int32 rowstoestimatedatatype,
                                        string tablename,
+                                       Int32 rowstoestimatedatatype = 250000,
                                        SepType sepType = SepType.auto)
             {
                 char sep = AutoMethods.DetectSeparator(pathtocsv, sepType);
@@ -811,8 +811,8 @@ namespace PullPushDB
             /// <summary>
             /// Converts data from text file into DataTable object.
             /// </summary>
-            /// <param name="pathtocsv"></param>
-            /// <param name="sepType"></param>
+            /// <param name="pathtocsv">Path to *.csv file.</param>
+            /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
             /// <returns></returns>
             public DataTable TextFileToDataTableAll(string pathtocsv,
                                                     SepType sepType = SepType.auto)
@@ -826,7 +826,7 @@ namespace PullPushDB
             /// <param name="spName">Name of stored procedure on SQL Server. E.g. dbo.sp_SelectZerosFromBoolData.</param>
             /// <param name="arrayListParams">ArrayList of parameters.</param>
             /// <param name="arrayListValues">ArrayList of values.</param>
-            /// <param name="returningData">True: returns data in DataTable (SELECT), False: calls stored procedure without returning any data (INSERT, UPDATE, DELETE).</param>
+            /// <param name="returningData">True: returns data into DataTable (result of SELECT statement), False: calls stored procedure without returning any data (INSERT, UPDATE, DELETE).</param>
             /// <returns></returns>
             public DataTable CallSQLStoredProcedure(string spName,
                                                 ArrayList arrayListParams,
