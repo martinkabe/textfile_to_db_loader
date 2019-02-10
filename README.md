@@ -1,4 +1,4 @@
-# csv_loader_lib.dll - .NET Framework dll for working with SQL Server
+# csv_loader_lib.dll - .NET Framework dll for working with MS SQL Server
 SQL Server operations from C#
 
 **Usage is:**
@@ -32,10 +32,30 @@ Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 * new DebugWritelinePrintMethod() is standard Debug.Writeline() from System.Diagnostics class
 
 **push_data**
-* Pushing data into SQL Server.
-* Table on SQL Server is automatically created if doesn't exist. 
-* Data types are automatically estimated (functionality is able to recognize scientific format and convert to appropriate sql data type - int, float, decimal, ... It is also able to distinguish date, datetime format and datetime in ISO format).
+* Pushing data from text file or DataTable object into SQL Server.
 ```
-push_data(connString, df, sqltabname, append = FALSE, showprogress = FALSE)
-# If append == TRUE then appending new rows into existing SQL table. If append == FALSE then deletes rows in existing SQL table and appends new records.
+// Push the data from text file into table on SQL Server
+bf.PushFlatFileToDB("c:\\Users\\Username\\Downloads\\test.csv", "dbo.TestTable")
+
+// Push the data from DataTable object into table on SQL Server
+DataTable dt = new DataTable();
+dt.Clear();
+dt.Columns.Add("Name");
+dt.Columns.Add("Marks");
+dt.Rows.Add(new object[] { "Ravi", 500 });
+dt.Rows.Add(new object[] { "Ilhan", 1000 });
+dt.Rows.Add(new object[] { "Francesco", 100 });
+dt.Rows.Add(new object[] { "Oskar", 900 });
+dt.Rows.Add(new object[] { "Peter", 300.87 });
+
+// if dbo.TestTable table doesn't exist, create it. Data types are automatically estimated based on the data in DataTable object
+if (bf.IfSQLTableExists("dbo.TestTableRavi"))
+{
+    bf.InsertDataIntoSQLServerUsingSQLBulkCopy(dt, "dbo.TestTable");
+}
+else
+{
+    bf.CreateSQLTableBasedOnDataTable(dt, "dbo.TestTable");
+    bf.InsertDataIntoSQLServerUsingSQLBulkCopy(dt, "dbo.TestTable");
+}
 ```
