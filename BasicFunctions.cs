@@ -267,7 +267,6 @@ namespace PullPushDB
                         }   
                     }
                     
-                    string str1 = string.Empty;
                     int dt_rows_count = dataTypes.Rows.Count;
 
                     using (StreamReader sr = new StreamReader(strFilePath))
