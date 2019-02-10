@@ -9,12 +9,11 @@ SQL Server operations from C#
 * creating, deleting table on SQL Server
 
 ## Getting Started
-
 *Adding library to C# Visual Studio project:*
 * go to [csv_loader_lib.dll](https://github.com/martinkabe/textfile_to_db_loader/blob/master/csv_loader_lib.dll) -> Download -> right click on "References" in your C# Visual Studio project -> Add Reference... -> Browse -> select newly downloaded csv_loader_lib.dll -> OK.
+* add **using PullPushDB.BasicOperations;** to C# Visual Studio project.
 
 ### Prerequisites
-
 * Windows OS
 * .NET Framework 4.5.1 or newer. How do I check it: [link](https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed/)
 
