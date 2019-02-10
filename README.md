@@ -1,7 +1,5 @@
-# textfile_to_db_loader
-SQL Server operations from C#
-
 # csv_loader_lib.dll - .NET Framework dll for working with SQL Server
+SQL Server operations from C#
 
 **Usage is:**
 * pulling data from SQL Server
@@ -13,26 +11,14 @@ SQL Server operations from C#
 ## Getting Started
 
 *Adding library to C# Visual Studio project:*
-```
-library(devtools)
-install_github("martinkabe/RSQLS")
-```
-*Install package from folder content:*
-* download zip file [RSQLS](https://github.com/martinkabe/RSQLS/) -> Clone or download -> Download ZIP
-```
-library(devtools)
-install('/RSQLS/package/diR')
-library(RSQLS)
-?RSQLS # for basic Help
-```
+* download csv_loader_lib.dll file [csv_loader_lib.dll](https://github.com/martinkabe/textfile_to_db_loader/blob/master/csv_loader_lib.dll) -> Download -> right click on "References" in your C# Visual Studio project -> Add Reference... -> Browse -> select newly downloaded csv_loader_lib.dll -> OK.
 
 ### Prerequisites
 
 * Windows OS
 * .NET Framework 4.5.1 or newer. How do I check it: [link](https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed/)
-* R Version R-3.4.2 or newer. Available at: [RProject](https://www.r-project.org/)
 
-### Basic functions - description
+### Basic methods - description
 
 **push_data**
 * Pushing data into SQL Server.
