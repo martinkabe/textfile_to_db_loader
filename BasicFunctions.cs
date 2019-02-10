@@ -379,7 +379,7 @@ namespace PullPushDB
             /// Method extracts columns' data types from table stored on SQL Server.
             /// </summary>
             /// <param name="tabName">Table name on SQL Server DB.</param>
-            /// <returns></returns>
+            /// <returns>Returns DataTable object.</returns>
             public DataTable ExtractDataTypesFromSQLTable(string tabName)
             {
                 DataTable table = new DataTable();
@@ -433,7 +433,7 @@ namespace PullPushDB
             /// Method tests whether table exists on SQL Server DB.
             /// </summary>
             /// <param name="tabname">Table name on SQL Server DB.</param>
-            /// <returns></returns>
+            /// <returns>Returns bool type.</returns>
             public bool IfSQLTableExists(string tabname)
             {
                 bool exists = false;
@@ -499,7 +499,7 @@ namespace PullPushDB
             /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
             /// <param name="showprogress">Show already flushed data into csv file.</param>
             /// <param name="batchSize">Batch size shows already flushed data into *.csv file. Default 100000.</param>
-            public void WriteFromDBToCSV(string sql_query,
+            public void WriteFromDBToTextFile(string sql_query,
                                          string csvpath,
                                          SepType sepType = SepType.auto,
                                          bool showprogress = false,
@@ -637,7 +637,7 @@ namespace PullPushDB
             /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
             /// <param name="showprogress">Show already flushed data into csv file.</param>
             /// <param name="batchSize">Batch size shows already flushed data into *.csv file. Default 100000.</param>
-            public void WriteToFileFromDB(string sql_query,
+            public void WriteToTextFileFromDB(string sql_query,
                                           string csvpath,
                                           SepType sepType = SepType.auto,
                                           bool showprogress = false,
@@ -755,7 +755,7 @@ namespace PullPushDB
             /// <param name="tablename">Name of the table on SQL Server needs to be created.</param>
             /// <param name="rowstoestimatedatatype">How many records are supposed to be used to data type identification, default is 250000.</param>
             /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
-            public void CreateSQLTableBasedOnTextFile(string pathtocsv,
+            private void CreateSQLTableBasedOnTextFile(string pathtocsv,
                                        string tablename,
                                        Int32 rowstoestimatedatatype = 250000,
                                        SepType sepType = SepType.auto)
@@ -842,9 +842,9 @@ namespace PullPushDB
             }
 
             /// <summary>
-            /// Test if connection to the SQL Server is valid. Returns Tuple<bool, string>(true/false, string.Empty/SqlException error message).
+            /// Test if connection to the SQL Server is valid.
             /// </summary>
-            /// <returns></returns>
+            /// <returns>Returns Tuple<bool, string>(true/false, string.Empty/SqlException error message).</returns>
             public Tuple<bool, string> IsServerConnected()
             {
                 using (SqlConnection connection = new SqlConnection(this._connectionString))
@@ -869,7 +869,7 @@ namespace PullPushDB
             /// </summary>
             /// <param name="pathtocsv">Path to *.csv file.</param>
             /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
-            /// <returns></returns>
+            /// <returns>Returns DataTable object.</returns>
             public DataTable TextFileToDataTableAll(string pathtocsv,
                                                     SepType sepType = SepType.auto)
             {
@@ -883,7 +883,7 @@ namespace PullPushDB
             /// <param name="arrayListParams">ArrayList of parameters.</param>
             /// <param name="arrayListValues">ArrayList of values.</param>
             /// <param name="returningData">True: returns data into DataTable (result of SELECT statement), False: calls stored procedure without returning any data (INSERT, UPDATE, DELETE).</param>
-            /// <returns></returns>
+            /// <returns>Returns DataTable object.</returns>
             public DataTable CallSQLStoredProcedure(string spName,
                                                 ArrayList arrayListParams,
                                                 ArrayList arrayListValues,
