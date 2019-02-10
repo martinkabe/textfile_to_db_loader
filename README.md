@@ -18,6 +18,18 @@ SQL Server operations from C#
 * .NET Framework 4.5.1 or newer. How do I check it: [link](https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/how-to-determine-which-versions-are-installed/)
 
 ### Basic methods - description
+*Create instance of BasicFunctions class:*
+```
+BasicFunctions bf = new BasicFunctions("Data Source=LAPTOP-SERVERNAME\\SQLEXPRESS;Initial Catalog=DatabaseName;Integrated Security=True;",
+                                                    new WriteToLogPrintMethod());
+```
+First parameter in constructor is connection string, second parameter specifies output write line statements:
+* new WriteToLogPrintMethod() writes into log file
+```
+Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+```
+* new ConsoleWritelinePrintMethod() is standard Console.Writeline()
+* new DebugWritelinePrintMethod() is standard Debug.Writeline() from System.Diagnostics class
 
 **push_data**
 * Pushing data into SQL Server.
