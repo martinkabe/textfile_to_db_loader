@@ -43,9 +43,14 @@ namespace PullPushDB
             /// </summary>
             /// <param name="dtable">DataTable as input parameter.</param>
             /// <param name="sqlTableName">Name of table on SQL Server database.</param>
-            /// <param name="batch_size">The size of batch in BulkCopy, default 1000 records.</param>
+            /// <param name="batchSize">The size of batch in BulkCopy, default 100000 records.</param>
             /// <param name="timeout">BulkCopy timeout.</param>
-            public void InsertDataIntoSQLServerUsingSQLBulkCopy(DataTable dtable, string sqlTableName, Int32 batch_size = 1000, int timeout = 0)
+            /// <param name="notifyAfter">BulkCopy timeout.</param>
+            public void InsertDataIntoSQLServerUsingSQLBulkCopy(DataTable dtable,
+                                                                string sqlTableName,
+                                                                Int32 batchSize = 100000,
+                                                                int timeout = 0,
+                                                                bool notifyAfter = false)
             {
                 try
                 {
@@ -57,10 +62,18 @@ namespace PullPushDB
                         {
                             // Write from the source to the destination.
                             bulkCopy.BulkCopyTimeout = timeout;
-                            bulkCopy.BatchSize = batch_size;
+                            bulkCopy.BatchSize = batchSize;
                             // Set up the event handler to notify after 50 rows.
                             // bulkCopy.SqlRowsCopied += new SqlRowsCopiedEventHandler(OnSqlRowsCopied);
-                            // bulkCopy.NotifyAfter = 10000;
+                            if (notifyAfter)
+                            {
+                                bulkCopy.NotifyAfter = batchSize;
+
+                                bulkCopy.SqlRowsCopied += (sender, args) =>
+                                {
+                                    Console.WriteLine("Copied {0} records so far ...", args.RowsCopied);
+                                };
+                            }
                             bulkCopy.WriteToServer(dtable);
                         }
                         catch (SqlException ex)
@@ -244,7 +257,7 @@ namespace PullPushDB
                         // table doesn't exist
                         if (createTableIfNotExist)
                         {
-                            CreateSQLTable(strFilePath, tabName, rowstoestimatedt, sepType);
+                            CreateSQLTableBasedOnTextFile(strFilePath, tabName, rowstoestimatedt, sepType);
                             dataTypes = ExtractDataTypesFromSQLTable(tabName);
                         }
                         else
@@ -743,14 +756,14 @@ namespace PullPushDB
             /// <param name="tablename">Name of the table on SQL Server needs to be created.</param>
             /// <param name="rowstoestimatedatatype">How many records are supposed to be used to data type identification, default is 250000.</param>
             /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
-            public void CreateSQLTable(string pathtocsv,
+            public void CreateSQLTableBasedOnTextFile(string pathtocsv,
                                        string tablename,
                                        Int32 rowstoestimatedatatype = 250000,
                                        SepType sepType = SepType.auto)
             {
                 char sep = AutoMethods.DetectSeparator(pathtocsv, sepType);
                 
-                string[,] sqldts = DataTypeIdentifier.SQLDataTypes(pathtocsv, rowstoestimatedatatype, sep);
+                string[,] sqldts = DataTypeIdentifier.SQLDataTypesBasedOnTextFile(pathtocsv, rowstoestimatedatatype, sep);
 
                 string createTable_string = string.Empty;
 
@@ -785,6 +798,50 @@ namespace PullPushDB
                     Environment.Exit(1);
                 }
             }
+            /// <summary>
+            /// Create SQL table based on the data in DataTable.
+            /// </summary>
+            /// <param name="dt">DataTable object.</param>
+            /// <param name="tablename">Name of the table on SQL Server needs to be created.</param>
+            public void CreateSQLTableBasedOnDataTable(DataTable dt,
+                                                       string tablename)
+            {
+                string[,] sqldts = DataTypeIdentifier.SQLDataTypesBasedOnDataTable(dt);
+
+                string createTable_string = string.Empty;
+
+                for (int i = 0; i < sqldts.GetLength(1); i++)
+                {
+                    if (i == sqldts.GetLength(1) - 1)
+                    {
+                        createTable_string = createTable_string + "[" + sqldts[1, i] + "]" + " " + sqldts[0, i];
+                    }
+                    else
+                    {
+                        createTable_string = createTable_string + "[" + sqldts[1, i] + "]" + " " + sqldts[0, i] + ", ";
+                    }
+                }
+                try
+                {
+                    using (SqlConnection con = new SqlConnection(this._connectionString))
+                    {
+                        con.Open();
+                        string createTable = @"CREATE TABLE " + tablename + " (" + createTable_string + ");";
+                        using (SqlCommand command = new SqlCommand(createTable, con))
+                        {
+                            command.CommandTimeout = 0;
+                            command.ExecuteNonQuery();
+                        }
+                        con.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowPrintMethod(ex.Message.ToString());
+                    Environment.Exit(1);
+                }
+            }
+
             /// <summary>
             /// Test if connection to the SQL Server is valid. Returns Tuple<bool, string>(true/false, string.Empty/SqlException error message).
             /// </summary>

@@ -106,12 +106,22 @@ class DataTypeIdentifier
     }
 
     // Return sql data types:
-    public static string[,] SQLDataTypes(string pathtocsv, Int32 norowsreview, char sep)
+    public static string[,] SQLDataTypesBasedOnTextFile(string pathtocsv, Int32 norowsreview, char sep)
     {
         // "c:\\PathToFile\\data.csv"
-        DataTable dt = TextFileToDataTable.CsvToDataTableToEstimateSep(pathtocsv, norowsreview, sep);
+        DataTable dt = TextFileToDataTable.CsvToDataTableToEstimateSepAndDataTypes(pathtocsv, norowsreview, sep);
         string[,] sqldatatype_array = new string[2, dt.Columns.Count];
+        return EstimateDataTypes(sqldatatype_array, dt);
+    }
 
+    public static string[,] SQLDataTypesBasedOnDataTable(DataTable dt)
+    {
+        string[,] sqldatatype_array = new string[2, dt.Columns.Count];
+        return EstimateDataTypes(sqldatatype_array, dt);
+    }
+
+    public static string[,] EstimateDataTypes(string[,] sqldatatype_array, DataTable dt)
+    {
         try
         {
             for (int i = 0; i < dt.Columns.Count; i++)

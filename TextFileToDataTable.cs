@@ -17,7 +17,7 @@ class TextFileToDataTable
     /// <param name="countRowsToBeStored">How many rows should be stored into data table from csv file to estimate separator.</param>
     /// <param name="sep">Separator for columns delimited.</param>
     /// <returns></returns>
-    public static DataTable CsvToDataTableToEstimateSep(string pathToCSV, Int32 countRowsToBeStored, char sep)
+    public static DataTable CsvToDataTableToEstimateSepAndDataTypes(string pathToCSV, Int32 countRowsToBeStored, char sep)
     {
         DataTable dtCsv = new DataTable();
         Int32 counter = 0;
