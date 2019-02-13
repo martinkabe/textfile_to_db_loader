@@ -75,48 +75,38 @@ class TextFileToDataTable
     public static DataTable CsvToDataTableAll(string pathToCSV, char sep)
     {
         DataTable dtCsv = new DataTable();
-        Int32 counter = 0;
         try
         {
-            using (StreamReader sr = new StreamReader(pathToCSV))
+            DataTable dt = new DataTable("CreditCards");
+            string[] columns = null;
+
+            var lines = File.ReadAllLines(pathToCSV);
+
+            // assuming the first row contains the columns information
+            if (lines.Count() > 0)
             {
-                while (!sr.EndOfStream)
-                {
-                    var line = sr.ReadLine();
-                    string[] values = line.Split(sep);
+                columns = lines[0].Split(new char[] { sep });
 
-                    DataRow dr = dtCsv.NewRow();
-
-                    // first add columns
-                    if (counter < 1)
-                    {
-                        for (int i = 0; i < values.Count(); i++)
-                        {
-                            dtCsv.Columns.Add(values[i]); //add headers  
-                        }
-                    }
-                    // and the rest of the data
-                    else
-                    {
-                        for (int i = 0; i < values.Count(); i++)
-                        {
-                            // values[i] = Regex.Replace(values[i], @"\s\s+", "");
-                            if (values[i] == "NA" || string.IsNullOrWhiteSpace(values[i]))
-                            {
-                                values[i] = null;
-                            }
-                            dr[i] = values[i];
-                        }
-                        dtCsv.Rows.Add(dr); //add other rows
-                    }
-                    counter++;
-                }
+                foreach (var column in columns)
+                    dt.Columns.Add(column);
             }
+
+            // reading rest of the data
+            for (int i = 1; i < lines.Count(); i++)
+            {
+                DataRow dr = dt.NewRow();
+                string[] values = lines[i].Split(new char[] { sep });
+
+                for (int j = 0; j < values.Count() && j < columns.Count(); j++)
+                    dr[j] = values[j];
+
+                dt.Rows.Add(dr);
+            }
+            return dt;
         }
         catch (Exception ex)
         {
             throw ex;
         }
-        return dtCsv;
     }
 }
