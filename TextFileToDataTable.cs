@@ -77,7 +77,7 @@ class TextFileToDataTable
         DataTable dtCsv = new DataTable();
         try
         {
-            DataTable dt = new DataTable("CreditCards");
+            DataTable dt = new DataTable();
             string[] columns = null;
 
             var lines = File.ReadAllLines(pathToCSV);
