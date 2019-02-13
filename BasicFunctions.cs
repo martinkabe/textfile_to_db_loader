@@ -71,7 +71,7 @@ namespace PullPushDB
 
                                 bulkCopy.SqlRowsCopied += (sender, args) =>
                                 {
-                                    Console.WriteLine("Copied {0} records so far ...", args.RowsCopied);
+                                    ShowPrintMethod("Copied " + args.RowsCopied + " records so far ...");
                                 };
                             }
                             bulkCopy.WriteToServer(dtable);
@@ -495,7 +495,7 @@ namespace PullPushDB
             /// Write table on SQL Server into text file using StringBuilder. Writing all the data into StringBuilder and then into text file.
             /// </summary>
             /// <param name="sql_query">SQL SELECT statement.</param>
-            /// <param name="csvpath">Patch to *.csv file.</param>
+            /// <param name="csvpath">Path to text file.</param>
             /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
             /// <param name="showprogress">Show already flushed data into csv file.</param>
             /// <param name="batchSize">Batch size shows already flushed data into *.csv file. Default 100000.</param>
@@ -633,7 +633,7 @@ namespace PullPushDB
             /// Writing the data into text file via StreamWriter. Writing directly into text file.
             /// </summary>
             /// <param name="sql_query">SQL SELECT statement.</param>
-            /// <param name="csvpath">Patch to *.csv file.</param>
+            /// <param name="csvpath">Path to text file.</param>
             /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
             /// <param name="showprogress">Show already flushed data into csv file.</param>
             /// <param name="batchSize">Batch size shows already flushed data into *.csv file. Default 100000.</param>
@@ -751,7 +751,7 @@ namespace PullPushDB
             /// <summary>
             /// Create SQL table based on the data in text file.
             /// </summary>
-            /// <param name="pathtocsv">Patch to *.csv file.</param>
+            /// <param name="pathtocsv">Path to text file.</param>
             /// <param name="tablename">Name of the table on SQL Server needs to be created.</param>
             /// <param name="rowstoestimatedatatype">How many records are supposed to be used to data type identification, default is 250000.</param>
             /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
@@ -867,15 +867,16 @@ namespace PullPushDB
             /// <summary>
             /// Converts data from text file into DataTable object.
             /// </summary>
-            /// <param name="pathtocsv">Path to *.csv file.</param>
+            /// <param name="pathtocsv">Path to text file.</param>
             /// <param name="sepType">Separator, default SepType.auto identifies separator automatically.</param>
             /// <returns>Returns DataTable object.</returns>
-            public DataTable TextFileToDataTableAll(string pathtocsv,
+            public DataTable PushTextFileToDataTable(string pathtocsv,
                                                     SepType sepType = SepType.auto)
             {
                 char sep = AutoMethods.DetectSeparator(pathtocsv, sepType);
                 return TextFileToDataTable.CsvToDataTableAll(pathtocsv, sep);
             }
+
             /// <summary>
             /// Calling SQL stored procedure.
             /// </summary>

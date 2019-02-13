@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Globalization;
 
 class TextFileToDataTable
 {
@@ -94,11 +95,12 @@ class TextFileToDataTable
                             dtCsv.Columns.Add(values[i]); //add headers  
                         }
                     }
+                    // and the rest of the data
                     else
                     {
                         for (int i = 0; i < values.Count(); i++)
                         {
-                            values[i] = Regex.Replace(values[i], @"\s\s+", "");
+                            // values[i] = Regex.Replace(values[i], @"\s\s+", "");
                             if (values[i] == "NA" || string.IsNullOrWhiteSpace(values[i]))
                             {
                                 values[i] = null;
