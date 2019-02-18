@@ -21,14 +21,15 @@ namespace PullPushDB
         {
             private readonly IPrintMethod _iprintmethod;
             private string _connectionString;
+
             /// <summary>
             /// Constructor for BasicOperations.BasicFunctions class.
             /// </summary>
-            /// <param name="conString">Connection string, e.g. LAPTOP-USERNAME\\SQLEXPRESS;Initial Catalog=DBName;Integrated Security=True;</param>
+            /// <param name="regularConnString">Instance of RegularConnString class.</param>
             /// <param name="iprintmethod">Instance of class, e.g.: new ConsoleWritelinePrintMethod() uses Console.Writeline() method.</param>
-            public BasicFunctions(string conString, IPrintMethod iprintmethod)
+            public BasicFunctions(RegularConnString regularConnString, IPrintMethod iprintmethod)
             {
-                _connectionString = conString;
+                _connectionString = regularConnString.GetConnString();
                 _iprintmethod = iprintmethod;
             }
 
@@ -37,6 +38,12 @@ namespace PullPushDB
             /// </summary>
             /// <param name="message">String message.</param>
             public void ShowPrintMethod(string message) => _iprintmethod.PrintMethod(message);
+
+            /// <summary>
+            /// Method gets connection string stored in private string _connectionString field.
+            /// </summary>
+            /// <returns>Method returns string (_connectionString field).</returns>
+            public string GetConnectionString() => this._connectionString;
 
             /// <summary>
             /// Pushes the data into SQL Server DB using SqlBulkCopy class.

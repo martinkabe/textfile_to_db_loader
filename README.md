@@ -20,11 +20,11 @@ SQL Server operations from C#
 ### Basic methods - description
 *Create instance of BasicFunctions class:*
 ```
-BasicFunctions bf = new BasicFunctions("Data Source=LAPTOP-SERVERNAME\\SQLEXPRESS;Initial Catalog=DatabaseName;Integrated Security=True;",
-                                                    new WriteToLogPrintMethod());
+BasicFunctions bf = new BasicFunctions(new RegularConnString("LAPTOP-USERPC\\SQLEXPRESS", "DatabaseName", customparam: "Integrated Security=True", userid:null, password:null),
+                                       new WriteToLogPrintMethod());
 ```
-First parameter in constructor is connection string, second parameter specifies output write line statements:
-* new WriteToLogPrintMethod() writes into log file
+First parameter in constructor is instance of RegularConnString class (this simplifies creation of SQL Server connection string), second parameter specifies output write line statements:
+* new WriteToLogPrintMethod() writes all print statements into log file
 ```
 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 ```
