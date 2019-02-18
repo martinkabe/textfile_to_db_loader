@@ -11,7 +11,9 @@ SQL Server operations from C#
 ## Getting Started
 *Adding library to C# Visual Studio project:*
 * go to [csv_loader_lib.dll](https://github.com/martinkabe/textfile_to_db_loader/blob/master/csv_loader_lib.dll) -> Download -> right click on "References" in your C# Visual Studio project -> Add Reference... -> Browse -> select newly downloaded csv_loader_lib.dll -> OK.
-* add **using PullPushDB.BasicOperations;** to C# Visual Studio project.
+* add 
+<br /> <font color="blue"> **using**</font> <i>**PullPushDB.BasicOperations;**</i>
+<br /> to C# Visual Studio project.
 
 ### Prerequisites
 * Windows OS
@@ -22,6 +24,8 @@ SQL Server operations from C#
 ```
 BasicFunctions bf = new BasicFunctions(new RegularConnString("LAPTOP-USERPC\\SQLEXPRESS", "DatabaseName", customparam: "Integrated Security=True", userid:null, password:null),
                                        new WriteToLogPrintMethod());
+// and simply check connection string
+string cs = bf.GetConnectionString();
 ```
 First parameter in constructor is instance of RegularConnString class (this simplifies creation of SQL Server connection string), second parameter specifies output write line statements:
 * new WriteToLogPrintMethod() writes all print statements into log file
