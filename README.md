@@ -179,6 +179,10 @@ bf.CallSQLStoredProcedure("dbo.sp_DeleteZerosFromBoolData", new ArrayList { }, n
 bf.CallSQLStoredProcedure("dbo.sp_DeleteWithParams", new ArrayList { "@name", "@married" }, new ArrayList { "Mark", 1 });
 ```
 
+**HandyExtensions class**
+* <i>ToDataTable</i> extension converts IEnumerable or List type into DataTable. Allows null values.
+
+
 **Another methods**
 * Another methods such as void CleanUpTable(string sqlTableName),
 * void DropTable(string sqlTableName),
