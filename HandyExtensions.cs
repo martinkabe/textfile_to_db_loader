@@ -14,7 +14,7 @@ public static class HandyExtensions
     /// <typeparam name="T">Generic type.</typeparam>
     /// <param name="items">IEnumerable type of items.</param>
     /// <returns>Returns IEnumerable.</returns>
-    public static DataTable ToDataTable<T>(this IEnumerable<T> items)
+    public static DataTable IEnumerableToDataTable<T>(this IEnumerable<T> items)
     {
         var tb = new DataTable(typeof(T).Name);
         PropertyInfo[] props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -41,7 +41,7 @@ public static class HandyExtensions
     /// <typeparam name="T">Generic type.</typeparam>
     /// <param name="items">List type of items.</param>
     /// <returns>Returns List.</returns>
-    public static DataTable ToDataTable<T>(this List<T> items)
+    public static DataTable ListToDataTable<T>(this List<T> items)
     {
         var tb = new DataTable(typeof(T).Name);
         PropertyInfo[] props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
