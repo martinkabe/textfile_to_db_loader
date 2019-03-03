@@ -21,7 +21,7 @@ SQL Server operations from C#
 
 ### Basic methods - description
 *Create instance of BasicFunctions class:*
-```
+```C#
 BasicFunctions bf = new BasicFunctions(new RegularConnString("LAPTOP-USERPC\\SQLEXPRESS", "DatabaseName", customparam: "Integrated Security=True", userid:null, password:null),
                                        new WriteToLogPrintMethod());
 // and simply check connection string
@@ -29,7 +29,7 @@ string cs = bf.GetConnectionString();
 ```
 First parameter in constructor is instance of RegularConnString class (this simplifies creation of SQL Server connection string), second parameter specifies output write line statements:
 * new WriteToLogPrintMethod() writes all print statements into log file
-```
+```C#
 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 ```
 * new ConsoleWritelinePrintMethod() is standard Console.Writeline()
@@ -37,7 +37,7 @@ Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 
 **Push data**
 * Pushing data from text file or DataTable object into SQL Server.
-```
+```C#
 // Push the data from text file into table on SQL Server
 bf.PushFlatFileToDB("c:\\Users\\Username\\Downloads\\test.csv", "dbo.TestTable")
 
@@ -66,9 +66,8 @@ else
 
 **Pull data**
 * Pulling data from table on SQL Server into DataTable object or directly to flat file.
-```
-/*
-    Create simple table on SQL Server:
+```SQL
+-- Let's create simple table on SQL Server:
 
     CREATE TABLE [dbo].[Finance](
 	    [Product] [int] NULL,
@@ -88,8 +87,8 @@ else
 	    (5678, '2008-01-01 13:04:00.000', NULL, NULL),
 	    (5678, '2008-01-01 13:05:00.000', 30.3500, 30.4),
 	    (5678, '2008-01-01 13:06:00.000', NULL, 30.4)
-*/
-
+```
+```C#
 // From SQL Server to DataTable
 DataTable dt = bf.FromSQLToDataTable("select * from [dbo].[Finance]");
 
@@ -130,9 +129,8 @@ else
 **Execute stored procedure**
 * Executing stored procedure on SQL Server.
 
-```
-/*
-    Create simple table:
+```SQL
+-- Let's create simple table:
 
     CREATE TABLE [dbo].[BoolData](
 	[name] [varchar](9) NULL,
@@ -167,8 +165,8 @@ else
     AS
     delete from dbo.BoolData where name = @name and married = @married
     GO
-*/
-
+```
+```C#
 // Call stored procedure without any parameters / values and return data in DataTable object
 DataTable dt_storeProc = bf.CallSQLStoredProcedure("dbo.sp_SelectZerosFromBoolData", new ArrayList { }, new ArrayList { }, true);
 
