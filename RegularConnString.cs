@@ -39,7 +39,7 @@ public class RegularConnString
         if (!String.IsNullOrEmpty(userid))
             userid = "User ID=" + userid;
         if (!String.IsNullOrEmpty(password))
-            password = "Password" + password;
+            password = "Password=" + password;
 
         var array = new[] { datasource, initialcatalogue, customparam, userid, password };
         string paramsconn = string.Join(";", array.Where(s => !string.IsNullOrEmpty(s)));
