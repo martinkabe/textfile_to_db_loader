@@ -26,7 +26,7 @@ public class LogWriter
         }
         catch (Exception ex)
         {
-            throw ex;
+            throw new Exception("LogWriter class: " + ex.Message.ToString());
         }
     }
 
@@ -41,7 +41,7 @@ public class LogWriter
         }
         catch (Exception ex)
         {
-            throw ex;
+            throw new Exception("LogWriter class: " + ex.Message.ToString());
         }
     }
 }

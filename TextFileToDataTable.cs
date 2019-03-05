@@ -67,7 +67,7 @@ class TextFileToDataTable
         }
         catch (Exception ex)
         {
-            throw ex;
+            throw new Exception(ex.Message.ToString());
         }
         return dtCsv;
     }
@@ -106,7 +106,7 @@ class TextFileToDataTable
         }
         catch (Exception ex)
         {
-            throw ex;
+            throw new Exception(ex.Message.ToString());
         }
     }
 }

@@ -106,27 +106,27 @@ namespace PullPushDB
                                 ShowPrintMethod("Table " + sqlTableName + " already exists in DB, just change data type - see the tip below.");
                                 ShowPrintMethod("Tip: try something like ALTER TABLE table_name ALTER COLUMN column_name datatype;");
                                 // CleanUpTable(sqlTableName, connString);
-                                Environment.Exit(1);
+                                throw new Exception(ex.ToString());
                             }
                             else
                             {
                                 ShowPrintMethod(ex.Message.ToString());
                                 // CleanUpTable(sqlTableName, connString);
-                                Environment.Exit(1);
+                                throw new Exception(ex.ToString());
                             }
                         }
                         catch (Exception e)
                         {
                             ShowPrintMethod(e.Message.ToString());
                             // CleanUpTable(sqlTableName, connString);
-                            Environment.Exit(1);
+                            throw new Exception(e.ToString());
                         }
                     }
                 }
                 catch (Exception e)
                 {
                     ShowPrintMethod(e.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(e.ToString());
                 }
             }
             /// <summary>
@@ -170,7 +170,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.ToString());
                 }
             }
             /// <summary>
@@ -197,7 +197,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.ToString());
                 }
             }
             /// <summary>
@@ -223,7 +223,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.ToString());
                 }
             }
             /// <summary>
@@ -270,7 +270,7 @@ namespace PullPushDB
                         else
                         {
                             ShowPrintMethod("Table " + tabName + " doesn't exist");
-                            Environment.Exit(1);
+                            throw new Exception("Table " + tabName + " doesn't exist");
                         }   
                     }
                     
@@ -283,7 +283,7 @@ namespace PullPushDB
                         if (headers.Length != dt_rows_count)
                         {
                             ShowPrintMethod("CSV file has different count of columns than table " + tabName + "!");
-                            Environment.Exit(1);
+                            throw new Exception("CSV file has different count of columns than table " + tabName + "!");
                         }
 
                         // Compare header - CSV vs DataTable
@@ -294,8 +294,8 @@ namespace PullPushDB
                             if (headers[i].ToString().Replace("\"", "").ToLower() != drh.ItemArray[0].ToString().ToLower())
                             {
                                 ShowPrintMethod("You need to reorder columns in your csv based to columns in " + tabName + " table!");
-                                ShowPrintMethod("Column " + headers[i].ToString().Replace("\"", "") + " in your data.table or data.frame\ndoesn't correspond with column " + drh.ItemArray[0].ToString() + " defined in " + tabName + " table");
-                                Environment.Exit(1);
+                                ShowPrintMethod("Column " + headers[i].ToString().Replace("\"", "") + " in your DataTable\ndoesn't correspond with column " + drh.ItemArray[0].ToString() + " defined in " + tabName + " table");
+                                throw new Exception("Column " + headers[i].ToString().Replace("\"", "") + " in your DataTable\ndoesn't correspond with column " + drh.ItemArray[0].ToString() + " defined in " + tabName + " table");
                             }
                         }
 
@@ -375,11 +375,11 @@ namespace PullPushDB
                 {
                     ShowPrintMethod(fex.Message.ToString());
                     ShowPrintMethod("Tip: there might be string between numeric data or the most likely escape character in string.\r\nCheck also scientific notation considered as string.");
-                    Environment.Exit(1);
+                    throw new Exception(fex.Message.ToString());
                 }
                 catch (Exception ex)
                 {
-                    ShowPrintMethod(ex.Message.ToString());
+                    throw new Exception(ex.Message.ToString());
                 }
             }
             /// <summary>
@@ -432,7 +432,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.Message.ToString());
                 }
                 return table;
             }
@@ -461,12 +461,12 @@ namespace PullPushDB
                 catch (InvalidOperationException ioe)
                 {
                     ShowPrintMethod("Invalid Operation Exception: " + ioe.Message.ToString() + "\nSomething is wrong with your connection string! You might check back slashes!");
-                    Environment.Exit(1);
+                    throw new Exception("Invalid Operation Exception: " + ioe.Message.ToString() + "\nSomething is wrong with your connection string! You might check back slashes!");
                 }
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.Message.ToString());
                 }
                 return (exists);
             }
@@ -493,7 +493,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.Message.ToString());
                 }
                 return table;
             }
@@ -632,7 +632,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.Message.ToString());
                 }
             }
 
@@ -752,7 +752,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.Message.ToString());
                 }
             }
             /// <summary>
@@ -801,7 +801,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.Message.ToString());
                 }
             }
             /// <summary>
@@ -844,7 +844,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
-                    Environment.Exit(1);
+                    throw new Exception(ex.Message.ToString());
                 }
             }
 
@@ -917,8 +917,8 @@ namespace PullPushDB
                                 }
                                 else
                                 {
-                                    ShowPrintMethod("List of parameters is not equal to list of values");
-                                    Environment.Exit(1);
+                                    ShowPrintMethod("CallSQLStoredProcedure: List of parameters is not equal to list of values");
+                                    throw new Exception("CallSQLStoredProcedure: List of parameters is not equal to list of values");
                                 }
                             }
                             con.Open();
@@ -941,6 +941,7 @@ namespace PullPushDB
                 catch (Exception ex)
                 {
                     ShowPrintMethod(ex.Message.ToString());
+                    throw new Exception(ex.Message.ToString());
                 }
                 return dataTable;
             }
