@@ -35,8 +35,7 @@ public class LogWriter
         try
         {
             txtWriter.Write("\r\nLog Entry : ");
-            txtWriter.Write("{0} {1}", DateTime.Now.ToLongTimeString(),
-                DateTime.Now.ToLongDateString());
+            txtWriter.Write("{0}", DateTime.Now.ToString("HH:mm:ss  MM/dd/yyyy"));
             txtWriter.Write(": [{0}]", logMessage);
         }
         catch (Exception ex)
