@@ -10,16 +10,27 @@ using System.Diagnostics;
 public class LogWriter
 {
     private string m_exePath = string.Empty;
-    public LogWriter(string logMessage)
+    public string logName = string.Empty;
+    public LogWriter(string logMessage, string logName)
     {
+        this.logName = logName;
         LogWrite(logMessage);
     }
     public void LogWrite(string logMessage)
     {
         m_exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        string lgname = string.Empty;
+        if (!string.IsNullOrEmpty(this.logName))
+        {
+            lgname = logName;
+        }
+        else
+        {
+            lgname = "log";
+        }
         try
         {
-            using (StreamWriter w = File.AppendText(m_exePath + "\\" + "log.txt"))
+            using (StreamWriter w = File.AppendText(m_exePath + "\\" + lgname + ".txt"))
             {
                 Log(logMessage, w);
             }
