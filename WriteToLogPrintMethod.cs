@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 public class WriteToLogPrintMethod : IPrintMethod
 {
-    public string logName = string.Empty;
+    private string logName = string.Empty;
 
     /// <summary>
     /// Log file name is going to be "log.txt"

@@ -10,7 +10,7 @@ using System.Diagnostics;
 public class LogWriter
 {
     private string m_exePath = string.Empty;
-    public string logName = string.Empty;
+    private string logName = string.Empty;
     public LogWriter(string logMessage, string logName)
     {
         this.logName = logName;

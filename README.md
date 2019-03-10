@@ -28,7 +28,7 @@ BasicFunctions bf = new BasicFunctions(new RegularConnString("LAPTOP-USERPC\\SQL
 string cs = bf.GetConnectionString();
 ```
 First parameter in constructor is instance of RegularConnString class (this simplifies creation of SQL Server connection string), second parameter specifies output write line statements:
-* new WriteToLogPrintMethod() writes all print statements into log file
+* new WriteToLogPrintMethod() writes all print statements into log file. It is overloaded constructor, string parameter determines the name of log file. If empty, log.txt is automatically generated.
 ```C#
 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
 ```
