@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace PullPushDB
 {
@@ -43,7 +38,17 @@ namespace PullPushDB
             /// Method gets connection string stored in private string _connectionString field.
             /// </summary>
             /// <returns>Method returns string (_connectionString field).</returns>
-            public string GetConnectionString() => this._connectionString;
+            public string GetConnectionString()
+            {
+                if (string.IsNullOrEmpty(this._connectionString))
+                {
+                    throw new Exception("Connection string is empty. Please define parameters.");
+                }
+                else
+                {
+                    return this._connectionString;
+                }
+            }
 
             /// <summary>
             /// Pushes the data into SQL Server DB using SqlBulkCopy class.

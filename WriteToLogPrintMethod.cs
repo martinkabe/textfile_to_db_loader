@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-public class WriteToLogPrintMethod : IPrintMethod
+﻿public class WriteToLogPrintMethod : IPrintMethod
 {
     private string logName = string.Empty;
 
