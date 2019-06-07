@@ -507,12 +507,6 @@ namespace PullPushDB
                     }
                     ShowPrintMethod(rowsCount + " records imported");
                 }
-                catch (FormatException fex)
-                {
-                    ShowPrintMethod(fex.Message.ToString());
-                    ShowPrintMethod("Tip: there might be string between numeric data or the most likely escape character in string.\r\nCheck also scientific notation considered as string.");
-                    throw new Exception(fex.Message.ToString());
-                }
                 catch (Exception ex)
                 {
                     throw new Exception(ex.Message.ToString());
