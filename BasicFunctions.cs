@@ -553,6 +553,7 @@ namespace PullPushDB
 
                         using (SqlCommand cmd = new SqlCommand(sqlQuery, con))
                         {
+                            cmd.CommandTimeout = 0;
                             SqlDataAdapter ds = new SqlDataAdapter(cmd);
                             ds.Fill(table);
                         }
@@ -614,6 +615,7 @@ namespace PullPushDB
                     {
                         using (SqlCommand cmd = new SqlCommand(sqlQuery, con))
                         {
+                            cmd.CommandTimeout = 0;
                             SqlDataAdapter ds = new SqlDataAdapter(cmd);
                             ds.Fill(table);
                         }
@@ -1035,6 +1037,7 @@ namespace PullPushDB
                         using (SqlCommand cmd = new SqlCommand(spName, con))
                         {
                             cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.CommandTimeout = 0;
 
                             if (arrayListParams.Count != 0)
                             {
